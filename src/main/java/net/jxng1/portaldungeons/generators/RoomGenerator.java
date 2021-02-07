@@ -19,11 +19,9 @@ public class RoomGenerator {
     private RoomGenerator westRoom;
 
     private String roomType;
-    private int id;
 
-    public RoomGenerator(Chunk chunk, int id, String roomType) {
+    public RoomGenerator(Chunk chunk, String roomType) {
         this.chunk = chunk;
-        this.id = id;
         this.roomType = roomType;
     }
 
