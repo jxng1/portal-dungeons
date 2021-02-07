@@ -1,0 +1,20 @@
+name: PortalDungeons
+version: ${project.version}
+main: net.jxng1.portaldungeons.PortalDungeons
+api-version: 1.16
+authors: [ jxng1 ]
+description: RPG-styled plugin. Check Notion page for more info.
+load: STARTUP
+commands:
+  buildportal:
+    usage: /buildportal
+    description: Builds a portal two blocks in front of the player.
+  removeportal:
+    usage: /removeportal <all>
+    description: Remove built portals.
+  generateroom:
+    usage: /generateroom
+    description: Generates room in player's current chunk.
+  removerooms:
+    usage: /removerooms
+    description: Removes rooms.

@@ -1,0 +1,23 @@
+{
+  "rooms": [
+    {
+      "roomType": "lobby",
+      "blocksToRemove": [
+        {
+          "x": "",
+          "y": "",
+          "z": ""
+        },
+        {
+          "x": "",
+          "y": "",
+          "z": ""
+        }
+      ],
+      "blocksToAdd": [
+        {
+        }
+      ]
+    }
+  ]
+}
