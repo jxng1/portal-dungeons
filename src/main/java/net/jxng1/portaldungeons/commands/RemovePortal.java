@@ -12,7 +12,8 @@ public class RemovePortal implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("all")) { // remove all portals
-                PortalDungeons.getInstance().getPortalManager().removePortals();
+                PortalDungeons.getInstance().getPortalManager().removeOverworldPortals();
+                PortalDungeons.getInstance().getPortalManager().removeDungeonWorldPortals();
                 Bukkit.getLogger().info("All portals have been removed!");
             }
             //TODO: individual portals being removed.

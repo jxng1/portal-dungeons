@@ -1,53 +1,30 @@
 package net.jxng1.portaldungeons.managers;
 
 import net.jxng1.portaldungeons.PortalDungeons;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import net.jxng1.portaldungeons.tasks.PlayerPortalSpawnTask;
+
+import java.util.UUID;
 
 public class PlayerManager {
 
-    private PortalDungeons plugin;
+    private final UUID uuid;
 
-    public PlayerManager(PortalDungeons plugin) {
-        this.plugin = plugin;
+    public PortalSpawnState portalSpawnState;
+
+    public PlayerManager(UUID uuid) {
+        this.portalSpawnState = PortalSpawnState.ALLOW;
+        this.uuid = uuid;
     }
 
-    public String getCardinalDirection(Player player) {
-        double rotation = player.getLocation().getYaw() - 180;
+    public void setAllowPortalSpawn(PortalSpawnState state) {
+        this.portalSpawnState = state;
+        if (this.portalSpawnState == PortalSpawnState.DISALLOWED) {
+            PlayerPortalSpawnTask playerPortalSpawnTask = new PlayerPortalSpawnTask(this);
+            playerPortalSpawnTask.runTaskTimer(PortalDungeons.getInstance(), 0, 20);
+        }
+    }
 
-        while (rotation < 0.0D) {
-            rotation += 360.0D;
-        }
-
-        Bukkit.getLogger().info(String.valueOf(rotation));
-
-        if ((0.0D <= rotation) && (rotation < 22.5D)) {
-            return "N";
-        }
-        if ((22.5D <= rotation) && (rotation < 67.5D)) {
-            return "NE";
-        }
-        if ((67.5D <= rotation) && (rotation < 112.5D)) {
-            return "E";
-        }
-        if ((112.5D <= rotation) && (rotation < 157.5D)) {
-            return "SE";
-        }
-        if ((157.5D <= rotation) && (rotation < 202.5D)) {
-            return "S";
-        }
-        if ((202.5D <= rotation) && (rotation < 247.5D)) {
-            return "SW";
-        }
-        if ((247.5D <= rotation) && (rotation < 292.5D)) {
-            return "W";
-        }
-        if ((292.5D <= rotation) && (rotation < 337.5D)) {
-            return "NW";
-        }
-        if ((337.5D <= rotation) && (rotation < 360.0D)) {
-            return "N";
-        }
-        return null;
+    public UUID getUUID() {
+        return this.uuid;
     }
 }

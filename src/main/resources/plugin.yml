@@ -4,7 +4,6 @@ main: net.jxng1.portaldungeons.PortalDungeons
 api-version: 1.16
 authors: [ jxng1 ]
 description: RPG-styled plugin. Check Notion page for more info.
-load: STARTUP
 commands:
   buildportal:
     usage: /buildportal
@@ -15,6 +14,6 @@ commands:
   generateroom:
     usage: /generateroom
     description: Generates room in player's current chunk.
-  removerooms:
-    usage: /removerooms
-    description: Removes rooms.
+  dungeonteleport:
+    usage: /dungeonteleport
+    description: Teleports to dungeon world.

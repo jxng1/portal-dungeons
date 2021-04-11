@@ -2,27 +2,30 @@ package net.jxng1.portaldungeons.generators;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 public class RoomGenerator {
 
-    private int currentHeight = 65;
+    public static int ROOM_HEIGHT = 65;
     private Set<Block> blocks = new HashSet<>();
     private Chunk chunk;
+    private World world;
 
-    private RoomGenerator northRoom;
-    private RoomGenerator eastRoom;
-    private RoomGenerator southRoom;
-    private RoomGenerator westRoom;
+    private Set<Block> chests = new HashSet<>();
 
-    private String roomType;
+    private RoomType roomType;
 
-    public RoomGenerator(Chunk chunk, String roomType) {
+    public RoomGenerator(Chunk chunk, RoomType roomType, World world) {
         this.chunk = chunk;
         this.roomType = roomType;
+        this.world = world;
     }
 
     public void buildRoom() {
@@ -30,83 +33,101 @@ public class RoomGenerator {
 
         for (int x = 0; x < 16; x++) { // creates box
             for (int z = 0; z < 16; z++) {
-                currentBlock = chunk.getBlock(x, currentHeight, z);
-                currentBlock.setType(Material.OBSIDIAN);
+                currentBlock = chunk.getBlock(x, ROOM_HEIGHT, z);
+                currentBlock.setType(Material.CYAN_STAINED_GLASS);
                 blocks.add(currentBlock);
-                for (int i = currentHeight + 1; i < 100; i++) {
+                for (int i = ROOM_HEIGHT + 1; i < 85; i++) {
                     currentBlock = chunk.getBlock(0, i, z);
-                    currentBlock.setType(Material.OBSIDIAN);
+                    currentBlock.setType(Material.CYAN_STAINED_GLASS);
                     blocks.add(currentBlock);
 
                     currentBlock = chunk.getBlock(15, i, z);
-                    currentBlock.setType(Material.OBSIDIAN);
+                    currentBlock.setType(Material.CYAN_STAINED_GLASS);
                     blocks.add(currentBlock);
 
                     currentBlock = chunk.getBlock(x, i, 0);
-                    currentBlock.setType(Material.OBSIDIAN);
+                    currentBlock.setType(Material.CYAN_STAINED_GLASS);
                     blocks.add(currentBlock);
 
                     currentBlock = chunk.getBlock(x, i, 15);
-                    currentBlock.setType(Material.OBSIDIAN);
+                    currentBlock.setType(Material.CYAN_STAINED_GLASS);
                     blocks.add(currentBlock);
                 }
-                currentBlock = chunk.getBlock(x, 100, z);
-                currentBlock.setType(Material.OBSIDIAN);
+                currentBlock = chunk.getBlock(x, 85, z);
+                currentBlock.setType(Material.CYAN_STAINED_GLASS);
                 blocks.add(currentBlock);
             }
         }
-
-        createDoorway(); // creates a doorway
     }
 
-    public void createDoorway() {
-        String direction = generateDoorPosition();
-        int doorX = 0;
-        int doorZ = 0;
+    public void createDoorway(List<Chunk> roomChunks) {
+        if (roomChunks.contains(world.getChunkAt(this.chunk.getX(), this.chunk.getZ() + 1))) { // south
+            chunk.getBlock(7, ROOM_HEIGHT + 1, 15).setType(Material.AIR);
+            chunk.getBlock(7, ROOM_HEIGHT + 2, 15).setType(Material.AIR);
+        }
+        if (roomChunks.contains(world.getChunkAt(this.chunk.getX() + 1, this.chunk.getZ()))) { // east
+            chunk.getBlock(15, ROOM_HEIGHT + 1, 7).setType(Material.AIR);
+            chunk.getBlock(15, ROOM_HEIGHT + 2, 7).setType(Material.AIR);
+        }
+        if (roomChunks.contains(world.getChunkAt(this.chunk.getX(), this.chunk.getZ() - 1))) { // north
+            chunk.getBlock(7, ROOM_HEIGHT + 1, 0).setType(Material.AIR);
+            chunk.getBlock(7, ROOM_HEIGHT + 2, 0).setType(Material.AIR);
+        }
+        if (roomChunks.contains(world.getChunkAt(this.chunk.getX() - 1, this.chunk.getZ()))) { // west
+            chunk.getBlock(0, ROOM_HEIGHT + 1, 7).setType(Material.AIR);
+            chunk.getBlock(0, ROOM_HEIGHT + 2, 7).setType(Material.AIR);
+        }
+    }
 
-        switch (direction) {
-            case "N":
-                doorX = 7;
-                doorZ = 15;
+    public void populateRoom() {
+        switch (this.roomType) {
+            case LOBBY:
                 break;
-            case "E":
-                doorX = 15;
-                doorZ = 7;
+            case NORMAL:
+                addChest(7, 7);
+
                 break;
-            case "S":
-                doorX = 7;
-                doorZ = 0;
-                break;
-            case "W":
-                doorX = 0;
-                doorZ = 7;
+            case END:
                 break;
             default:
-                Bukkit.getLogger().info("Error with creating room door.");
+                Bukkit.getLogger().info("Error with populating room.");
         }
-        chunk.getBlock(doorX, currentHeight + 1, doorZ).setType(Material.AIR);
-        chunk.getBlock(doorX, currentHeight + 2, doorZ).setType(Material.AIR);
     }
 
-    public String generateDoorPosition() {
+    private void addChest(int baseX, int baseZ) {
         Random random = new Random();
-        int sel = random.nextInt(4) + 1;
-        switch (sel) {
-            case 1:
-                return "N";
-            case 2:
-                return "E";
-            case 3:
-                return "S";
-            case 4:
-                return "W";
-            default:
-                Bukkit.getLogger().info("Direction not generated!");
-                return "";
-        }
+        Block target;
+        int x, z;
+        int y = ROOM_HEIGHT + 1;
+
+        do {
+            x = baseX + ((random.nextInt(5) + 1) * (random.nextBoolean() ? 1 : -1));
+            z = baseZ + ((random.nextInt(5) + 1) * (random.nextBoolean() ? 1 : -1));
+            target = chunk.getBlock(x, y, z);
+        } while ((x >= 15 || x <= 0) && (z >= 15 || z <= 0) && !target.getType().isEmpty());
+
+        target.setType(Material.CHEST);
+        chests.add(target);
+        Bukkit.getLogger().info("Chest added at: " + target.getX() + " " + target.getZ());
+        placeItems(((Chest) target.getState()).getInventory());
     }
 
-    public void destroyRoom() {
+    private void placeItems(Inventory inventory) {
+        List<ItemStack> items = ItemGenerator.generateItems();
+
+        items.forEach(inventory::addItem);
+    }
+
+    public void cleanup() {
+        removeChests();
+        destroyRoom();
+    }
+
+    private void removeChests() {
+        chests.forEach(block -> block.setType(Material.AIR));
+    }
+
+    private void destroyRoom() {
         for (Block block : blocks) {
             block.setType(Material.AIR);
         }

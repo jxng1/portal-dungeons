@@ -2,6 +2,7 @@ package net.jxng1.portaldungeons.commands;
 
 import net.jxng1.portaldungeons.PortalDungeons;
 import net.jxng1.portaldungeons.generators.PortalGenerator;
+import net.jxng1.portaldungeons.utils.PlayerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -17,7 +18,7 @@ public class BuildPortal implements CommandExecutor {
             Player player = (Player) sender;
             Location playerLocation = player.getLocation().toBlockLocation();
             Location portalBase;
-            String playerCardinality = PortalDungeons.getInstance().getPlayerManager().getCardinalDirection(player);
+            String playerCardinality = PlayerUtil.getCardinalDirection(player);
 
             Bukkit.getLogger().info(playerCardinality);
 
@@ -43,7 +44,7 @@ public class BuildPortal implements CommandExecutor {
                     return false;
             }
 
-            for (PortalGenerator portal : PortalDungeons.getInstance().getPortalManager().getPortalMap().keySet()) {
+            for (PortalGenerator portal : PortalDungeons.getInstance().getPortalManager().getPortalMapOverworld().keySet()) {
                 Location baseLocation = portal.getBaseLocation();
                 if ((baseLocation.getBlockX() - 3 <= portalBase.getBlockX() && baseLocation.getBlockX() + 3 >= portalBase.getBlockX()) &&
                         baseLocation.getBlockZ() - 3 <= portalBase.getBlockZ() && baseLocation.getBlockZ() + 3 >= portalBase.getBlockZ()) {
@@ -53,7 +54,6 @@ public class BuildPortal implements CommandExecutor {
             }
 
             PortalDungeons.getInstance().getPortalManager().createPortal(player.getUniqueId(), portalBase, playerCardinality);
-
             return true;
         } else {
             Bukkit.getLogger().info("Must be called by a player!");

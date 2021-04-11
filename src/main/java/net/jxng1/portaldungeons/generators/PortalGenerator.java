@@ -1,19 +1,22 @@
 package net.jxng1.portaldungeons.generators;
 
+import net.jxng1.portaldungeons.PortalDungeons;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 public class PortalGenerator {
 
     private Location baseLocation;
     private Set<Block> blocks = new HashSet<>();
-    private Location linkLocation;
+    private PortalGenerator link;
 
     public PortalGenerator(Location location) {
         this.baseLocation = location;
@@ -23,13 +26,9 @@ public class PortalGenerator {
         Block portal = baseLocation.getBlock();
 
         portal.setType(Material.OBSIDIAN); // central column
-        portal.getRelative(BlockFace.UP).setType(Material.DARK_OAK_WOOD);
-        portal.getRelative(BlockFace.UP, 2).setType(Material.DARK_OAK_WOOD);
         portal.getRelative(BlockFace.UP, 3).setType(Material.OBSIDIAN);
 
         blocks.add(portal); // add central column to blocks set
-        blocks.add(portal.getRelative(BlockFace.UP));
-        blocks.add(portal.getRelative(BlockFace.UP, 2));
         blocks.add(portal.getRelative(BlockFace.UP, 3));
 
         // deals with player facing direction:
@@ -97,7 +96,15 @@ public class PortalGenerator {
         return this.blocks;
     }
 
+    public void setLink(PortalGenerator link) {
+        this.link = link;
+    }
+
     public Location getBaseLocation() {
         return this.baseLocation;
+    }
+
+    public PortalGenerator getLink() {
+        return link;
     }
 }
