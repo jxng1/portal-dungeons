@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class RoomGenerator {
 
-    public static int ROOM_HEIGHT = 65;
+    public static int ROOM_HEIGHT = 65; // READ FROM CONFIG;
     private Set<Block> blocks = new HashSet<>();
     private Chunk chunk;
     private World world;
@@ -28,7 +28,7 @@ public class RoomGenerator {
         this.world = world;
     }
 
-    public void buildRoom() {
+    public void buildRoom() { // IMPLEMENT A MATERIAL FROM CONFIG...
         Block currentBlock;
 
         for (int x = 0; x < 16; x++) { // creates box
@@ -84,7 +84,9 @@ public class RoomGenerator {
             case LOBBY:
                 break;
             case NORMAL:
-                addChest(7, 7);
+                if (Math.random() < 0.05) { // READ FROM CONFIG
+                    addChest(7, 7);
+                }
 
                 break;
             case END:
@@ -132,5 +134,13 @@ public class RoomGenerator {
             block.setType(Material.AIR);
         }
         blocks.clear();
+    }
+
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    public Chunk getChunk() {
+        return chunk;
     }
 }

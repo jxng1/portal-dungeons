@@ -16,7 +16,7 @@ public class GenerateRoom implements CommandExecutor {
             Player player = (Player) sender;
             DungeonManager dm = PortalDungeons.getInstance().createNewDungeonManager(player.getUniqueId());
 
-            dm.generateRoom(player.getChunk());
+            dm.generateDungeon(player.getChunk());
         }
 
         return true;

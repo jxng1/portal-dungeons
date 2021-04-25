@@ -1,22 +1,18 @@
 package net.jxng1.portaldungeons.generators;
 
-import net.jxng1.portaldungeons.PortalDungeons;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 public class PortalGenerator {
 
     private Location baseLocation;
     private Set<Block> blocks = new HashSet<>();
-    private PortalGenerator link;
 
     public PortalGenerator(Location location) {
         this.baseLocation = location;
@@ -96,15 +92,8 @@ public class PortalGenerator {
         return this.blocks;
     }
 
-    public void setLink(PortalGenerator link) {
-        this.link = link;
-    }
-
     public Location getBaseLocation() {
         return this.baseLocation;
     }
 
-    public PortalGenerator getLink() {
-        return link;
-    }
 }

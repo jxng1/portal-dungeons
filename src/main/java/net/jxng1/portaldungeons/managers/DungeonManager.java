@@ -1,128 +1,147 @@
 package net.jxng1.portaldungeons.managers;
 
 import net.jxng1.portaldungeons.PortalDungeons;
+import net.jxng1.portaldungeons.generators.PortalGenerator;
 import net.jxng1.portaldungeons.generators.RoomGenerator;
 import net.jxng1.portaldungeons.generators.RoomType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 import java.util.*;
 
 public class DungeonManager { // might be integrated into a DungeonManager which has a multitude of RoomManagers...
 
-    private PortalDungeons plugin;
-    private List<RoomGenerator> rooms = new ArrayList<>();
-    private List<Chunk> roomChunks = new ArrayList<>();
+    private final List<RoomGenerator> rooms = new ArrayList<>();
+    private final List<Chunk> roomChunks = new ArrayList<>();
 
-    private String seed; // might add this in later
+    private PortalGenerator startPortal; // DUNGEON START
+    private PortalGenerator endPortal; // DUNGEON END
+    private PortalGenerator overworldPortal; // OVERWORLD PORTAL
+
+    private final int dungeonSize;
 
     private final Random random = new Random();
 
-    public DungeonManager(PortalDungeons plugin) {
-        this.plugin = plugin;
-        this.seed = generateSeed(random.nextInt(10) + 5);
+    public DungeonManager() {
+        this.dungeonSize = random.nextInt(10) + 5; // 5-10 rooms... READ FROM CONFIG
     }
 
-    public void generateRoom(Chunk chunk) {
-        char[] seedArray = seed.toCharArray();
-        Chunk newChunk = chunk;
-        World world = PortalDungeons.getInstance().dungeonWorld;
-        RoomGenerator currentRoom;
-        RoomType roomType = RoomType.LOBBY;
-        int i = 0;
+    public void generateDungeon(Chunk startingChunk) {
+        World dungeonWorld = PortalDungeons.getInstance().dungeonWorld;
+        Chunk targetChunk = null;
 
-        while (i < seedArray.length) {
-            if (seedArray[i] != '0') {
-                switch (seedArray[i]) { // Direction
-                    case '1': //north
-                        newChunk = world.getChunkAt(newChunk.getX(), newChunk.getZ() - 1);
+        int currentChunkX, currentChunkZ;
+        currentChunkX = startingChunk.getX();
+        currentChunkZ = startingChunk.getZ();
 
+        roomChunks.add(startingChunk);
+        rooms.add(new RoomGenerator(startingChunk, RoomType.LOBBY, dungeonWorld));
+
+        for (int i = 1; i < dungeonSize; i++) {
+            do {
+                int dir = random.nextInt(4) + 1;
+
+                switch (dir) {
+                    case 1: // NORTH
+                        targetChunk = dungeonWorld.getChunkAt(currentChunkX, currentChunkZ--);
                         break;
-                    case '2': //east
-                        newChunk = world.getChunkAt(newChunk.getX() + 1, newChunk.getZ());
-
+                    case 2: // EAST
+                        targetChunk = dungeonWorld.getChunkAt(currentChunkX++, currentChunkZ);
                         break;
-                    case '3': //south
-                        newChunk = world.getChunkAt(newChunk.getX(), newChunk.getZ() + 1);
-
+                    case 3: // SOUTH
+                        targetChunk = dungeonWorld.getChunkAt(currentChunkX, currentChunkZ++);
                         break;
-                    case '4': //west
-                        newChunk = world.getChunkAt(newChunk.getX() - 1, newChunk.getZ());
-
+                    case 4: // WEST
+                        targetChunk = dungeonWorld.getChunkAt(currentChunkX--, currentChunkZ);
                         break;
-                    default:
-                        Bukkit.getLogger().info("Error with rooms.");
                 }
-            }
-            switch (seedArray[++i]) { // RoomType
-                case 'L':
-                    roomType = RoomType.LOBBY;
-                    break;
-                case 'N':
-                    roomType = RoomType.NORMAL;
-                    break;
-                case 'E':
-                    roomType = RoomType.END;
-                    Bukkit.getLogger().info(ChatColor.DARK_PURPLE + "END ROOM ADDED!");
-                    break;
-                default:
-                    Bukkit.getLogger().info("Error with rooms.");
-            }
+            } while (roomChunks.contains(targetChunk));
 
-            currentRoom = new RoomGenerator(newChunk, roomType, world);
-            i++;
-            rooms.add(currentRoom);
-            roomChunks.add(newChunk);
+            roomChunks.add(targetChunk);
+
+            if (roomChunks.size() == dungeonSize) {
+                rooms.add(new RoomGenerator(targetChunk, RoomType.END, dungeonWorld));
+            } else {
+                rooms.add(new RoomGenerator(targetChunk, RoomType.NORMAL, dungeonWorld));
+            }
         }
 
-        Bukkit.getLogger().info("No of rooms: " + rooms.size());
+        Bukkit.getLogger().info(ChatColor.DARK_RED + "No of rooms: " + rooms.size());
 
+        // TODO
+        // Can turn below code into another method.
         rooms.forEach(RoomGenerator::buildRoom);
         rooms.forEach(room -> room.createDoorway(this.roomChunks));
         rooms.forEach(RoomGenerator::populateRoom);
     }
 
-    private String generateSeed(int roomSize) { // kind of want to make this better.
-        int[] seed = new int[roomSize];
-        char[] out = new char[roomSize * 2];
-        int sel;
-        int i = 1;
-        int j = 0;
-
-        seed[0] = 0;
-        while (i < roomSize) {
-            sel = random.nextInt(4) + 1;
-            if (seed[i - 1] == 0) { //start
-                seed[i] = sel;
-                i++;
-            } else if ((seed[i - 1] - sel) % 2 != 0) {
-                seed[i] = sel;
-                i++;
-            }
-        }
-
-        i = 0;
-        while (j < roomSize * 2) {
-            if (i == 0) {
-                out[j++] = (char) 48;
-                out[j++] = 'L';
-                i++;
-            } else if (j == roomSize * 2 - 2) {
-                out[j++] = (char) (seed[i++] + 48);
-                out[j++] = 'E';
-            } else {
-                out[j++] = (char) (seed[i++] + 48);
-                out[j++] = 'N';
-            }
-        }
-
-        Bukkit.getLogger().info("SEED: " + ChatColor.RED + String.valueOf(out) + " SIZE: " + roomSize);
-        return String.valueOf(out);
-    }
-
     public void cleanup() {
         rooms.forEach(RoomGenerator::cleanup);
+    }
+
+    public void setEndPortal(PortalGenerator endPortal) {
+        this.endPortal = endPortal;
+    }
+
+    public PortalGenerator getEndPortal() {
+        return endPortal;
+    }
+
+    public void setOverworldPortal(PortalGenerator overworldPortal) {
+        this.overworldPortal = overworldPortal;
+    }
+
+    public PortalGenerator getOverworldPortal() {
+        return overworldPortal;
+    }
+
+    public void setStartPortal(PortalGenerator startPortal) {
+        this.startPortal = startPortal;
+    }
+
+    public PortalGenerator getStartPortal() {
+        return startPortal;
+    }
+
+    public PortalGenerator createDungeonStartPortal(UUID uuid) {
+        Random random = new Random();
+        int x;
+        int z;
+
+        do {
+            x = (random.nextInt(Integer.MAX_VALUE) * (random.nextBoolean() ? 1 : -1)) >> 12;
+            z = (random.nextInt(Integer.MAX_VALUE) * (random.nextBoolean() ? 1 : -1)) >> 12;
+        } while (PortalDungeons.getInstance().getPortalManager().isCloseToOtherPortals(x, z));
+
+        Chunk destChunk = PortalDungeons.getInstance().dungeonWorld.getChunkAt(x, z);
+
+        Block base = destChunk.getBlock(7, RoomGenerator.ROOM_HEIGHT + 1, 7);
+
+        PortalGenerator dest = new PortalGenerator(base.getLocation());
+        setStartPortal(dest);
+
+        PortalDungeons.getInstance().getPortalManager().getPortalMapDungeonWorld().put(dest, uuid);
+
+        return dest;
+    }
+
+    public PortalGenerator createDungeonEndPortal(UUID uuid) {
+        for (RoomGenerator room : this.rooms) {
+            if (room.getRoomType() == RoomType.END) {
+                Block base = room.getChunk().getBlock(7, RoomGenerator.ROOM_HEIGHT + 1, 7);
+
+                PortalGenerator dest = new PortalGenerator(base.getLocation());
+                setEndPortal(dest);
+
+                PortalDungeons.getInstance().getPortalManager().getPortalMapDungeonWorld().put(dest, uuid);
+
+                return dest;
+            }
+        }
+
+        return null;
     }
 }

@@ -42,7 +42,7 @@ public class PlayerUtil {
         if ((337.5D <= rotation) && (rotation < 360.0D)) {
             return "N";
         }
-        return null;
+        return "N"; // fail-safe
     }
 
     // Issue with this function is that it will ALWAYS start at the left most co-ordinate, so is not random.
@@ -73,7 +73,7 @@ public class PlayerUtil {
             for (int tempZ = z - areaSize; tempZ <= z + areaSize; tempZ++) {
                 for (int tempY = y; tempY <= y + areaSize; tempY++) {
                     if (!(world.getBlockAt(tempX, tempY, tempZ).getType().isEmpty())) {
-                        Bukkit.getLogger().info(ChatColor.DARK_RED + "Not suitable.");
+                        //Bukkit.getLogger().info(ChatColor.DARK_RED + "Not suitable.");
                         return false;
                     }
                 }

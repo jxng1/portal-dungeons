@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class DungeonGenerator extends ChunkGenerator {
+public class WorldGenerator extends ChunkGenerator {
 
     int currentHeight = 50;
 
@@ -21,7 +21,7 @@ public class DungeonGenerator extends ChunkGenerator {
 
     @Override
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
-        SimplexOctaveGenerator generator = new SimplexOctaveGenerator(new Random(world.getSeed()), 8);
+        //SimplexOctaveGenerator generator = new SimplexOctaveGenerator(new Random(world.getSeed()), 8);
         ChunkData chunk = createChunkData(world);
 //        generator.setScale(0.005D);
 //

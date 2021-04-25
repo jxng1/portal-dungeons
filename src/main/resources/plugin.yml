@@ -17,3 +17,9 @@ commands:
   dungeonteleport:
     usage: /dungeonteleport
     description: Teleports to dungeon world.
+  edit:
+    usage: /edit <enable|disable>
+    description: Allows the player to enable edit state.
+  structure:
+    usage: /structure <save|__>
+    description: Allows player to interact with structures.
